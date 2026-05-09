@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0
-# Copyright (C) 2026 N. Azimi
+# Copyright (C) 2026 Navid Azimi
 
 """
 Obscura Engine: Core Cryptographic Protocol
