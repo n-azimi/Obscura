@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0
+# Copyright (C) 2026 N. Azimi
+
 """
 Obscura Unix launcher: opens separate terminal windows for contract, backend, and frontend.
 Works on Ubuntu (Linux) and macOS.

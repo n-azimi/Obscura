@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0
+// Copyright (C) 2026 N. Azimi
+
 import React from 'react';
 import Obscura from './components/Obscura';
 import './App.css';

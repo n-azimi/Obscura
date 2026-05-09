@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0
+// Copyright (C) 2026 N. Azimi
+
 /**
  * Obscura Privacy-Preserving Protocol for the Algorand Blockchain - Frontend Component
  * 
