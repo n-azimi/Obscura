@@ -1,0 +1,690 @@
+.algo-mixer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  color: white;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.header h1 {
+  margin-bottom: 10px;
+  font-size: 3rem;
+  font-weight: 700;
+  background: linear-gradient(45deg, #fff, #e0e7ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header p {
+  font-size: 1.2rem;
+  opacity: 0.9;
+  margin-bottom: 10px;
+}
+
+.app-id {
+  font-family: monospace;
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+.status-message {
+  background: rgba(0, 255, 127, 0.2);
+  border: 1px solid rgba(0, 255, 127, 0.5);
+  padding: 10px 20px;
+  border-radius: 10px;
+  margin-top: 15px;
+  font-weight: 500;
+}
+
+.wallet-section {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.connect-btn, .disconnect-btn, .deposit-btn, .withdraw-btn {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 15px 30px;
+  border-radius: 15px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.connect-btn:hover, .deposit-btn:hover, .withdraw-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2));
+}
+
+.disconnect-btn {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(220, 38, 38, 0.3));
+  margin-left: 10px;
+}
+
+.connected-wallet {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 20px;
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.mixer-interface {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-bottom: 40px;
+}
+
+.deposit-section, .withdrawal-section {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 30px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.deposit-section h2, .withdrawal-section h2 {
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+}
+
+.deposit-info {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.deposit-info p {
+  margin: 8px 0;
+  font-size: 0.95rem;
+}
+
+.address-input {
+  width: 100%;
+  padding: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  backdrop-filter: blur(10px);
+}
+
+.address-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.address-input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+.deposits-list {
+  margin-top: 20px;
+}
+
+.deposits-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.add-manual-btn {
+  background: rgba(34, 197, 94, 0.2);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  color: white;
+  padding: 8px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.3s ease;
+}
+
+.add-manual-btn:hover {
+  background: rgba(34, 197, 94, 0.3);
+  transform: translateY(-1px);
+}
+
+.export-btn {
+  background: rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  color: white;
+  padding: 8px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.3s ease;
+}
+
+.export-btn:hover {
+  background: rgba(59, 130, 246, 0.3);
+  transform: translateY(-1px);
+}
+
+.manual-entry-form {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.manual-entry-form h4 {
+  margin: 0 0 10px 0;
+  font-size: 1.1rem;
+  color: #fff;
+}
+
+.form-description {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.manual-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 0.8rem;
+  font-family: monospace;
+  backdrop-filter: blur(10px);
+  box-sizing: border-box;
+}
+
+.manual-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.manual-input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.form-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.add-btn {
+  background: rgba(34, 197, 94, 0.2);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.add-btn:hover {
+  background: rgba(34, 197, 94, 0.3);
+  transform: translateY(-1px);
+}
+
+.cancel-btn {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.cancel-btn:hover {
+  background: rgba(239, 68, 68, 0.3);
+  transform: translateY(-1px);
+}
+
+.clear-btn {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: white;
+  padding: 8px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.3s ease;
+}
+
+.clear-btn:hover {
+  background: rgba(239, 68, 68, 0.3);
+}
+
+.no-deposits {
+  text-align: center;
+  padding: 30px;
+  opacity: 0.7;
+}
+
+.security-warning {
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 15px;
+}
+
+.security-warning p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #fbbf24;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.deposit-item {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.monitor-dashboard {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.monitor-dashboard h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+  color: #ffffff;
+  text-align: center;
+}
+
+.monitor-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.monitor-stat {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.monitor-stat.full-width {
+  grid-column: 1 / -1;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #fff;
+}
+
+.deposit-details {
+  flex: 1;
+  margin-right: 15px;
+}
+
+.detail-row {
+  margin-bottom: 10px;
+}
+
+.detail-row:last-child {
+  margin-bottom: 0;
+}
+
+.value-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 5px;
+}
+
+.full-value {
+  font-family: monospace;
+  font-size: 0.8rem;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+  word-break: break-all;
+  flex: 1;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.editable-value {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.editable-value:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.editable-input {
+  font-family: monospace;
+  font-size: 0.8rem;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  flex: 1;
+  outline: none;
+  word-break: break-all;
+}
+
+.editable-input:focus {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+.edit-btn {
+  background: rgba(255, 193, 7, 0.2);
+  border: 1px solid rgba(255, 193, 7, 0.4);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.7rem;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.edit-btn:hover {
+  background: rgba(255, 193, 7, 0.3);
+  transform: scale(1.1);
+}
+
+.copy-btn, .edit-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.7rem;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.copy-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.deposit-details p {
+  margin: 5px 0;
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.info-section {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 40px;
+  border-radius: 20px;
+  margin-top: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.info-section h2 {
+  margin-bottom: 30px;
+  text-align: center;
+  font-size: 2rem;
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 15px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+}
+
+.step-number {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.step h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+}
+
+.step p {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.8;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.security-notice {
+  background: rgba(239, 68, 68, 0.1);
+  padding: 25px;
+  border-radius: 15px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  text-align: center;
+}
+
+.security-notice h3 {
+  color: #fca5a5;
+  margin-bottom: 15px;
+}
+
+.security-notice p {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+@media (max-width: 768px) {
+  .mixer-interface {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .algo-mixer {
+    padding: 15px;
+  }
+
+  .header h1 {
+    font-size: 2rem;
+  }
+
+  .steps {
+    grid-template-columns: 1fr;
+  }
+
+  .deposit-item {
+    flex-direction: column;
+    gap: 15px;
+    text-align: left;
+  }
+
+  .deposit-details {
+    margin-right: 0;
+  }
+
+  .value-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 5px;
+  }
+
+  .full-value {
+    font-size: 0.7rem;
+    padding: 6px 8px;
+  }
+
+  .editable-input {
+    font-size: 0.7rem;
+    padding: 6px 8px;
+  }
+
+  .copy-btn, .edit-btn {
+    align-self: flex-end;
+    width: fit-content;
+  }
+
+  .connected-wallet {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .header-buttons {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .add-manual-btn, .clear-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .add-manual-btn, .export-btn, .clear-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .form-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .add-btn, .cancel-btn {
+    width: 100%;
+  }
+
+  .manual-entry-form {
+    padding: 15px;
+  }
+
+  .deposits-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mixer-interface {
+  animation: fadeIn 0.6s ease-out;
+}
