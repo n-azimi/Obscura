@@ -8,7 +8,7 @@
 
 [![Google Scholar](https://img.shields.io/badge/Google%20Scholar-Paper-4285F4?logo=googlescholar&logoColor=white)](https://scholar.google.com/scholar_lookup?arxiv_id=2605.02077)
 [![arXiv](https://img.shields.io/badge/arXiv-2605.02077-b31b1b.svg)](https://arxiv.org/abs/2605.02077)
-[![IACR](https://img.shields.io/badge/IACR-Preprint-2E2E2E.svg?logo=databricks&logoColor=white)](https://eprint.iacr.org/)
+[![IACR](https://img.shields.io/badge/IACR-2026%2F917-2E2E2E.svg?logo=databricks&logoColor=white)](https://ia.cr/2026/917)
 [![Python Version](https://img.shields.io/badge/Python-3.12.12-blue.svg?logo=python&logoColor=white)](#)
 [![Node.js Version](https://img.shields.io/badge/Node.js-22.16.0-339933.svg?logo=node.js&logoColor=white)](#)
 [![npm](https://img.shields.io/badge/npm-v10.9.2-CB3837.svg?logo=npm&logoColor=white)](#)
@@ -433,7 +433,7 @@ The academic research paper detailing the cryptographic foundations, transaction
 
 [![Google Scholar](https://img.shields.io/badge/Google%20Scholar-Paper-4285F4?logo=googlescholar&logoColor=white)](https://scholar.google.com/scholar_lookup?arxiv_id=2605.02077)
 [![arXiv](https://img.shields.io/badge/arXiv-2605.02077-b31b1b.svg)](https://arxiv.org/abs/2605.02077)
-[![IACR](https://img.shields.io/badge/IACR-Preprint-2E2E2E.svg?logo=databricks&logoColor=white)](https://eprint.iacr.org/)
+[![IACR](https://img.shields.io/badge/IACR-2026%2F917-2E2E2E.svg?logo=databricks&logoColor=white)](https://ia.cr/2026/917)
 
 If this repository or the paper has contributed to your research, please acknowledge our work by citing it:
 
@@ -445,6 +445,17 @@ If this repository or the paper has contributed to your research, please acknowl
   author={Azimi, Navid},
   journal={arXiv preprint arXiv:2605.02077},
   year={2026}
+}
+```
+
+```
+@misc{cryptoeprint:2026/917,
+      author = {Navid Azimi},
+      title = {Obscura: Privacy-Preserving Protocol for the Algorand Blockchain Using {LSAG} Ring Signatures},
+      howpublished = {Cryptology {ePrint} Archive, Paper 2026/917},
+      year = {2026},
+      doi = {10.48550/arXiv.2605.02077},
+      url = {https://eprint.iacr.org/2026/917}
 }
 ```
 
