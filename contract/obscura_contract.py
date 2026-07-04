@@ -103,11 +103,48 @@ class Obscura:
             Assert(Len(Txn.application_args[1]) == Int(64)),
             Assert(Len(Txn.application_args[3]) == Int(32)),
             
-            # Request extra opcode budget dynamically using inner transactions
-            # Each member costs ~11400 ops (4x EcScalarMul). 1 inner app call adds 700 budget.
-            # We request 20 inner app calls per member. (20 * 700 = 14000)
-            # We call the dummy app provided in Txn.applications[1] to avoid self-call error
-            For(i.store(Int(0)), i.load() < (n_members * Int(20)), i.store(i.load() + Int(1))).Do(
+            # =========================================================================
+            # BUDGET OPTIMIZATION & MATH ANALYSIS (AVM Opcode Budget)
+            # =========================================================================
+            # Opcode costs on the AVM are strictly constant and deterministic.
+            #
+            # https://dev.algorand.co/reference/algorand-teal/opcodes/
+            # https://dev.algorand.co/concepts/smart-contracts/languages/teal/
+            #
+            # 1. Exact Verification Loop Cost (Per Member):
+            #    - 4 x EcScalarMul (BN254g1):  4 * 1810 = 7240 ops
+            #    - 2 x EcAdd (BN254g1):        2 * 125  =  250 ops
+            #    - 1 x Sha256:                 1 * 35   =   35 ops
+            #    - 1 x BytesAnd (b&):          1 * 6    =    6 ops
+            #    - 1 x App.box_length:         1 * 1    =    1 op
+            #    - Loop overhead & control:                 ~76 ops
+            #    -----------------------------------------------------
+            #    Total Cost Per Member (C)              = 7608 ops
+            #
+            # 2. Inner Transaction Budget Gain (Per Call):
+            #    - Budget added per inner call:           +700 ops
+            #    - Main loop inner txn submit overhead:    -23 ops
+            #    -----------------------------------------------------
+            #    Net Budget Gain Per Call (G)           =  677 ops
+            #
+            # 3. Solving for Minimum Multiplier (M):
+            #    We need: Budget > Cost
+            #    700 + 700 * M * n > 7608 * n + 23 * M * n + 115
+            #    677 * M * n > 7608 * n - 585
+            #    677 * M > 7608 - 585/n
+            #
+            #    For Ring Size n = 19:
+            #    677 * M > 7577.2  =>  M > 11.19  =>  M_min = 12
+            #
+            #    At M = 12:
+            #    - Total budget per member = 12 * 700 = 8400 ops
+            #    - Net budget gain = 12 * 677 = 8124 ops
+            #    - Safety margin = 8124 - 7608 = 516 ops (7.2% buffer)
+            #
+            # We request 12 inner app calls per member to achieve the absolute lowest
+            # possible user transaction fees while maintaining a robust safety margin.
+            # We call the dummy app provided in Txn.applications[1] to avoid self-call error.
+            For(i.store(Int(0)), i.load() < (n_members * Int(12)), i.store(i.load() + Int(1))).Do(
                 Seq([
                     InnerTxnBuilder.Begin(),
                     InnerTxnBuilder.SetFields({

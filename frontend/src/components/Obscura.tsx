@@ -168,6 +168,8 @@ const Obscura: React.FC = () => {
     setLoading(true);
     setStatus('Creating deposit...');
 
+    const startTotal = performance.now();
+
     try {
       const algodClient = new algosdk.Algodv2('', 'https://testnet-api.algonode.cloud', '');
       
@@ -180,6 +182,7 @@ const Obscura: React.FC = () => {
       // the BN254 commitment computation to a local Python backend that performs the
       // elliptic curve operations.
 
+      const startDetailGen = performance.now();
       const secret = generateRandomHex(32);
       
       // Call the local proof service to compute the BN254 commitment corresponding
@@ -193,6 +196,7 @@ const Obscura: React.FC = () => {
       const commitData = await commitRes.json();
       if (!commitData.success) throw new Error(commitData.error);
       const commitment = commitData.commitment;
+      const endDetailGen = performance.now();
 
       console.log('Generated deposit details (KEEP PRIVATE):');
       console.log('  Secret:', secret.slice(0, 16) + '...');
@@ -200,6 +204,7 @@ const Obscura: React.FC = () => {
 
       setStatus('Preparing transactions...');
 
+      const startTxConst = performance.now();
       const appAddress = algosdk.getApplicationAddress(appId);
       const suggestedParams = await algodClient.getTransactionParams().do();
       
@@ -242,9 +247,11 @@ const Obscura: React.FC = () => {
       // Group transactions
       const groupedTxns = [appCallTxn, paymentTxn];
       algosdk.assignGroupID(groupedTxns);
+      const endTxConst = performance.now();
 
       setStatus('Please sign the transaction in your wallet...');
 
+      const startTxSub = performance.now();
       const signedTxns = await peraWallet.signTransaction([
         [
           { txn: appCallTxn, signers: [accountAddress] },
@@ -255,9 +262,21 @@ const Obscura: React.FC = () => {
       setStatus('Submitting transaction...');
 
       const { txId } = await algodClient.sendRawTransaction(signedTxns).do();
+      const endTxSub = performance.now();
       
       setStatus('Waiting for confirmation...');
+      const startNetConf = performance.now();
       await algosdk.waitForConfirmation(algodClient, txId, 4);
+      const endNetConf = performance.now();
+
+      const endTotal = performance.now();
+
+      console.log('\nDeposit Timing:');
+      console.log(`  Deposit detail generation: ${(endDetailGen - startDetailGen).toFixed(0)} ms`);
+      console.log(`  Transaction construction: ${(endTxConst - startTxConst).toFixed(0)} ms`);
+      console.log(`  Transaction submission: ${(endTxSub - startTxSub).toFixed(0)} ms`);
+      console.log(`  Network confirmation time: ${(endNetConf - startNetConf).toFixed(0)} ms`);
+      console.log(`  Total deposit time: ${(endTotal - startTotal).toFixed(0)} ms\n`);
 
       // Store deposit data locally
       const depositData: DepositData = {
@@ -306,9 +325,12 @@ const Obscura: React.FC = () => {
     setLoading(true);
     setStatus('Creating withdrawal transaction...');
 
+    const startTotal = performance.now();
+
     try {
       const algodClient = new algosdk.Algodv2('', 'https://testnet-api.algonode.cloud', '');
       
+      const startDataGen = performance.now();
       // -------------------------------------------------
       // Retrieve all deposit commitments stored in boxes
       // -------------------------------------------------
@@ -449,8 +471,8 @@ const Obscura: React.FC = () => {
       // -------------------------------------------------
       // We need (ringSize - 1) decoys + 1 real = ringSize members
       // We dynamically fetch the effective ring size from the monitor API.
-      // If it fails, we default to 5.
-      let targetRingSize = 5;
+      // If it fails, we default to 19.
+      let targetRingSize = 19;
       try {
         const monitorRes = await fetch('http://localhost:5000/api/monitor');
         const monitorData = await monitorRes.json();
@@ -458,7 +480,7 @@ const Obscura: React.FC = () => {
           targetRingSize = monitorData.data.effectiveRing;
         }
       } catch (e) {
-        console.warn("Could not fetch dynamic ring size, defaulting to 5", e);
+        console.warn("Could not fetch dynamic ring size, defaulting to 19", e);
       }
       
       const numDecoys = targetRingSize - 1;
@@ -471,13 +493,15 @@ const Obscura: React.FC = () => {
       ring.push(depositData.commitment);
       
       // Final shuffle using cryptographically secure Fisher-Yates to ensure the 
-      // real commitment is uniformly distributed across all 5 positions.
+      // real commitment is uniformly distributed across all 19 positions.
       ring = secureShuffle(ring);
+      const endDataGen = performance.now();
 
       // -------------------------------------------------
       // Generate zero-knowledge ring signature proof
       // -------------------------------------------------
 
+      const startProofGen = performance.now();
       // Call the backend proof server to do the heavy BN254 math
       const response = await fetch('http://localhost:5000/generate_proof', {
           method: 'POST',
@@ -497,11 +521,13 @@ const Obscura: React.FC = () => {
         if (!proofData.success) {
           throw new Error(`Failed to generate proof: ${proofData.error}`);
         }
+        const endProofGen = performance.now();
 
         // -------------------------------------------------
         // Prepare proof inputs for the smart contract
         // -------------------------------------------------
 
+        const startTxConst = performance.now();
         const proofBytes = hexToBytes(proofData.proof);
 
         // Nullifier prevents double-spending of the same deposit
@@ -524,60 +550,166 @@ const Obscura: React.FC = () => {
         nullifierBoxName.set(nullifierHashBytes.slice(0, 32), 1);
 
         // -------------------------------------------------
-        // Fee calculation
-        // -------------------------------------------------
-        // Calculate required fee for inner opups
-        // We have `ring.length` members. Each member takes 20 inner opup txns. 
-        // Plus 1 inner payout txn. Plus outer txn.
-        const totalInnerTxns = (ring.length * 20) + 1;
-        const requiredFee = (totalInnerTxns + 1) * suggestedParams.minFee;
-        
-        suggestedParams.fee = requiredFee;
-        suggestedParams.flatFee = true;
-
-        // -------------------------------------------------
         // Create withdrawal application call
         // -------------------------------------------------
-        const withdrawalTxn = algosdk.makeApplicationNoOpTxn(
-          accountAddress,
-          suggestedParams,
-          appId,
-          [
-            stringToBytes('withdraw'),
-            hexToBytes(proofData.nullifier), // Full 64 bytes point
-            proofBytes,                      // ZK proof
-            recipientBytes,                  // Recipient address
-          ],
-          [withdrawalAddress],
-          [dummyAppId],
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          [
-            { appIndex: appId, name: nullifierBoxName },
-            // Provide all ring commitment boxes to the contract
-            ...ring.map(c => {
-               const bName = new Uint8Array(33);
-               bName.set(stringToBytes('c'), 0);
-               bName.set(hexToBytes(c).slice(0, 32), 1);
-               return { appIndex: appId, name: bName };
-            })
-          ]
-        );
+        const allBoxes = [
+          { appIndex: appId, name: nullifierBoxName },
+          // Provide all ring commitment boxes to the contract
+          ...ring.map(c => {
+             const bName = new Uint8Array(33);
+             bName.set(stringToBytes('c'), 0);
+             bName.set(hexToBytes(c).slice(0, 32), 1);
+             return { appIndex: appId, name: bName };
+          })
+        ];
 
-        setStatus('Please sign the withdrawal transaction...');
+        const mainNonBoxRefs = 2; // withdrawalAddress (1) + dummyAppId (1)
+        const mainMaxBoxes = 8 - mainNonBoxRefs; // 6
 
-        const txnsToSign = [{ txn: withdrawalTxn, signers: [accountAddress] }];
-        const signedTxn = await peraWallet.signTransaction([txnsToSign]);
+        let signedTxns: Uint8Array[];
+        let txId = '';
 
-        setStatus('Submitting withdrawal...');
+        let startTxSub = 0;
+        let endTxSub = 0;
+        let startNetConf = 0;
+        let endNetConf = 0;
+        let endTxConst = 0;
 
-        const { txId } = await algodClient.sendRawTransaction(signedTxn).do();
-        
+        if (allBoxes.length <= mainMaxBoxes) {
+          // Calculate required fee for inner opups
+          // We have `ring.length` members. Each member takes 12 inner opup txns. 
+          // Plus 1 inner payout txn. Plus outer txn.
+          const totalInnerTxns = (ring.length * 12) + 1;
+          const requiredFee = (totalInnerTxns + 1) * suggestedParams.minFee;
+          
+          suggestedParams.fee = requiredFee;
+          suggestedParams.flatFee = true;
+
+          const withdrawalTxn = algosdk.makeApplicationNoOpTxn(
+            accountAddress,
+            suggestedParams,
+            appId,
+            [
+              stringToBytes('withdraw'),
+              hexToBytes(proofData.nullifier), // Full 64 bytes point
+              proofBytes,                      // ZK proof
+              recipientBytes,                  // Recipient address
+            ],
+            [withdrawalAddress],
+            [dummyAppId],
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            allBoxes
+          );
+          endTxConst = performance.now();
+
+          setStatus('Please sign the withdrawal transaction...');
+
+          const txnsToSign = [{ txn: withdrawalTxn, signers: [accountAddress] }];
+          startTxSub = performance.now();
+          signedTxns = await peraWallet.signTransaction([txnsToSign]);
+
+          setStatus('Submitting withdrawal...');
+
+          const sendResponse = await algodClient.sendRawTransaction(signedTxns).do();
+          txId = sendResponse.txId;
+          endTxSub = performance.now();
+        } else {
+          const txns: algosdk.Transaction[] = [];
+          const txnsToSign: { txn: algosdk.Transaction; signers: string[] }[] = [];
+
+          // The main transaction can only take mainMaxBoxes (6) boxes
+          const mainBoxes = allBoxes.slice(0, mainMaxBoxes);
+          const remainingBoxes = allBoxes.slice(mainMaxBoxes);
+
+          // Calculate total outer transactions
+          // 1 main transaction + extra transactions (each extra transaction can take up to 8 boxes)
+          const extraTxnsCount = Math.ceil(remainingBoxes.length / 8);
+          const totalOuterTxns = 1 + extraTxnsCount;
+
+          const totalInnerTxns = (ring.length * 12) + 1;
+          const requiredFee = (totalInnerTxns + totalOuterTxns) * suggestedParams.minFee;
+          
+          const mainSuggestedParams = { ...suggestedParams };
+          mainSuggestedParams.fee = requiredFee;
+          mainSuggestedParams.flatFee = true;
+
+          const withdrawalTxn = algosdk.makeApplicationNoOpTxn(
+            accountAddress,
+            mainSuggestedParams,
+            appId,
+            [
+              stringToBytes('withdraw'),
+              hexToBytes(proofData.nullifier), // Full 64 bytes point
+              proofBytes,                      // ZK proof
+              recipientBytes,                  // Recipient address
+            ],
+            [withdrawalAddress],
+            [dummyAppId],
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            mainBoxes
+          );
+          txns.push(withdrawalTxn);
+          txnsToSign.push({ txn: withdrawalTxn, signers: [accountAddress] });
+
+          for (let i = 0; i < remainingBoxes.length; i += 8) {
+            const extraBoxes = remainingBoxes.slice(i, i + 8);
+            const extraSuggestedParams = { ...suggestedParams };
+            extraSuggestedParams.fee = 0;
+            extraSuggestedParams.flatFee = true;
+
+            const extraTxn = algosdk.makeApplicationNoOpTxn(
+              accountAddress,
+              extraSuggestedParams,
+              appId,
+              [stringToBytes('opup')],
+              undefined,
+              undefined,
+              undefined,
+              undefined,
+              undefined,
+              undefined,
+              extraBoxes
+            );
+            txns.push(extraTxn);
+            txnsToSign.push({ txn: extraTxn, signers: [accountAddress] });
+          }
+
+          algosdk.assignGroupID(txns);
+          endTxConst = performance.now();
+
+          setStatus('Please sign the withdrawal transaction group...');
+
+          startTxSub = performance.now();
+          signedTxns = await peraWallet.signTransaction([txnsToSign]);
+
+          setStatus('Submitting withdrawal...');
+
+          const sendResponse = await algodClient.sendRawTransaction(signedTxns).do();
+          txId = sendResponse.txId;
+          endTxSub = performance.now();
+        }
+
         setStatus('Waiting for confirmation...');
+        startNetConf = performance.now();
         await algosdk.waitForConfirmation(algodClient, txId, 4);
+        endNetConf = performance.now();
         
+        const endTotal = performance.now();
+
+        console.log('\nWithdrawal Timing:');
+        console.log(`  Withdrawal data generation: ${(endDataGen - startDataGen).toFixed(0)} ms`);
+        console.log(`  Proof generation time: ${(endProofGen - startProofGen).toFixed(0)} ms`);
+        console.log(`  Transaction construction: ${(endTxConst - startTxConst).toFixed(0)} ms`);
+        console.log(`  Transaction submission: ${(endTxSub - startTxSub).toFixed(0)} ms`);
+        console.log(`  Network confirmation time: ${(endNetConf - startNetConf).toFixed(0)} ms`);
+        console.log(`  Total withdrawal time: ${(endTotal - startTotal).toFixed(0)} ms\n`);
+
         console.log('WITHDRAWAL COMPLETE');
         console.log('  TX:', txId);
 
@@ -778,7 +910,7 @@ const Obscura: React.FC = () => {
               <p><strong>Deposit Fee:</strong> 0.001 ALGO</p>
               <p><strong>You Receive:</strong> 0.899 ALGO (on withdrawal)</p>
               <p className="privacy-note">
-                🌀 Calculated for Privacy Pool of 5 Participants
+                🌀 Calculated for Privacy Pool of 19 Participants
               </p>
             </div>
             <button 
