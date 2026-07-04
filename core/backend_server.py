@@ -69,7 +69,7 @@ def get_monitor_data():
     try:
         balance, deposits, withdrawals, unspent = fetch_contract_state()
         
-        recommended_ring = min(unspent, 5)
+        recommended_ring = 19
         if recommended_ring < 0:
             recommended_ring = 0
 
